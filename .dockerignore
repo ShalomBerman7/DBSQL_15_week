@@ -1,0 +1,6 @@
+
+.idea/
+app/__pycache__/
+.venv
+.gitignore
+k8s
