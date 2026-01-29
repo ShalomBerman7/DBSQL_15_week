@@ -57,7 +57,7 @@ def get_payments_total_and_average():
             MIN(amount),
             MAX(amount)
         FROM payments
-            """
+        """
 
     cursor.execute(query)
     results = cursor.fetchall()
@@ -67,7 +67,14 @@ def get_payments_total_and_average():
 def get_employees_with_office_phone():
     """Return employees with their office phone numbers."""
     query = """
-                """
+        SELECT 
+            e.firstName, 
+            e.lastName, 
+            o.phone
+        FROM employees e 
+        JOIN offices o
+            ON e.officeCode = o.officeCode
+        """
 
     cursor.execute(query)
     results = cursor.fetchall()
@@ -77,7 +84,13 @@ def get_employees_with_office_phone():
 def get_customers_with_shipping_dates():
     """Return customers with their order shipping dates."""
     query = """
-                """
+        SELECT 
+            c.customerName, 
+            o.orderDate
+        FROM customers c
+        JOIN orders o
+            ON c.customerNumber = o.customerNumber
+        """
 
     cursor.execute(query)
     results = cursor.fetchall()
@@ -87,17 +100,39 @@ def get_customers_with_shipping_dates():
 def get_customer_quantity_per_order():
     """Return customer name and quantity for each order."""
     query = """
-                """
+        SELECT 
+            c.customerName, 
+            COUNT(od.quantityOrdered)
+        FROM customers c
+        JOIN orders o
+            ON c.customerNumber = o.customerNumber
+        JOIN orderdetails od
+            ON o.orderNumber = od.orderNumber
+        GROUP BY c.customerName
+        ORDER BY c.customerName
+        """
 
     cursor.execute(query)
     results = cursor.fetchall()
     return results
 
 
-def get_customers_payments_by_lastname_pattern(pattern: str = "son"):
+def get_customers_payments_by_lastname_pattern():
     """Return customers and payments for last names matching pattern."""
     query = """
-                """
+        SELECT 
+            c.customerName, 
+            concat(e.firstName, ' ', e.lastName) AS salesRepName,
+            SUM(p.amount)
+        FROM customers c
+        JOIN employees e
+            ON c.salesRepEmployeeNumber = e.employeeNumber
+        JOIN payments p
+            ON c.customerNumber = p.customerNumber
+        WHERE e.firstName LIKE 'iy%' OR e.firstName LIKE 'mu%'
+        GROUP BY c.customerName
+        ORDER BY SUM(p.amount) DESC
+        """
 
     cursor.execute(query)
     results = cursor.fetchall()
